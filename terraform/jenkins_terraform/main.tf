@@ -17,12 +17,12 @@ resource "aws_security_group" "jenkins-sg" {
   #   }
   # ]
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  # egress {
+  #   from_port   = 0
+  #   to_port     = 0
+  #   protocol    = "-1"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
 
   tags = {
     Name = "Jenkins-SG"
@@ -57,6 +57,15 @@ resource "aws_security_group_rule" "smtp" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
 }
+# Inbound rule for SMTP
+resource "aws_security_group_rule" "smtp1" {
+  security_group_id = aws_security_group.jenkins-sg.id
+  type              = "ingress"
+  from_port         = 465
+  to_port           = 465
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
 
 # Inbound rule for Custom TCP port
 resource "aws_security_group_rule" "custom_tcp" {
@@ -68,7 +77,7 @@ resource "aws_security_group_rule" "custom_tcp" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 # Inbound rule for Custom TCP port
-resource "aws_security_group_rule" "custom_tcp" {
+resource "aws_security_group_rule" "custom_tcp1" {
   security_group_id = aws_security_group.jenkins-sg.id
   type              = "ingress"
   from_port         = 30000
@@ -76,10 +85,45 @@ resource "aws_security_group_rule" "custom_tcp" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
 }
+# Inbound rule for custum tcp
+resource "aws_security_group_rule" "custom_tcp2" {
+  security_group_id = aws_security_group.jenkins-sg.id
+  type              = "ingress"
+  from_port         = 6443
+  to_port           = 6443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+# Inbound rule for http
+resource "aws_security_group_rule" "http" {
+  security_group_id = aws_security_group.jenkins-sg.id
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+# Inbound rule for http
+resource "aws_security_group_rule" "https" {
+  security_group_id = aws_security_group.jenkins-sg.id
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+# resource "aws_security_group_rule" "egress_all" {
+#   security_group_id = aws_security_group.jenkins-sg.id
+#   type              = "egress"
+#   from_port         = 0
+#   to_port           = 0
+#   protocol          = "-1"
+#   cidr_blocks       = ["0.0.0.0/0"]
+# }
 
 resource "aws_instance" "web" {
-  ami                    = "ami-0c55b159cbfafe1f0"
-  instance_type          = "t2.micro"
+  ami                    = "ami-06aa3f7caf3a30282"
+  instance_type          = "t2.xlarge"
   key_name               = "Robin"
   vpc_security_group_ids = [aws_security_group.jenkins-sg.id]
   user_data              = templatefile("./install_jenkins.sh", {})
